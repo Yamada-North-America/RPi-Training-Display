@@ -115,6 +115,7 @@ def play_video(video_path):
 #    imagePath (str): The path to the welcome screen image file.     
 def display_image(imagePath):
     global sensorValue
+    imageAvailable = True
     img = cv2.imread(imagePath)
     if img is None:
         print("Error: Cannot open image file.")
@@ -123,6 +124,12 @@ def display_image(imagePath):
     cv2.setWindowProperty("Image_Display", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     #Wait for sensorValue to change
     while sensorValue == 0:
+        imageAvailable = False
+        cv2.imshow("Image_Display", img)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
+        update()
+    while sensorValue != 0 and imageAvailable:
         cv2.imshow("Image_Display", img)
         if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
