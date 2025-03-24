@@ -28,51 +28,51 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-import os
-import cv2
-import time
-import lib16inpind as inp16
-
 #Global Variables - Adjust video paths here
 sensorValue = 0 #Initial sensor value - Do not change
-welcomeScreen = "/mnt/Training/RPi-Training-Display/Media/Welcome-Screen.png"
-closeDoors = "/mnt/Training/RPi-Training-Display/Media/Close-Doors.png"
-video1 = "/mnt/Training/test_video1.mov"
-video2 = "/mnt/Training/test_video2.mov"
-video3 = "/mnt/Training/test_video3.mov"
-video4 = "/mnt/Training/test_video4.mov"
-video5 = "/mnt/Training/test_video5.mov"
-video6 = "/mnt/Training/test_video6.mov"
-video7 = "/mnt/Training/test_video7.mov"
-video8 = "/mnt/Training/test_video8.mov"
-video9 = "/mnt/Training/test_video9.mov"
-video10 = "/mnt/Training/test_video10.mov"
-video11 = "/mnt/Training/test_video11.mov"
-video12 = "/mnt/Training/test_video12.mov"
-video13 = "/mnt/Training/test_video13.mov"
-video14 = "/mnt/Training/test_video14.mov"
-video15 = "/mnt/Training/test_video15.mov"
-video16 = "/mnt/Training/test_video16.mov"
-video17 = "/mnt/Training/test_video17.mov"
-video18 = "/mnt/Training/test_video18.mov"
-video19 = "/mnt/Training/test_video19.mov"
-video20 = "/mnt/Training/test_video20.mov"
-video21 = "/mnt/Training/test_video21.mov"
-video22 = "/mnt/Training/test_video22.mov"
-video23 = "/mnt/Training/test_video23.mov"
-video24 = "/mnt/Training/test_video24.mov"
-video25 = "/mnt/Training/test_video25.mov"
-video26 = "/mnt/Training/test_video26.mov"
-video27 = "/mnt/Training/test_video27.mov"
-video28 = "/mnt/Training/test_video28.mov"
-video29 = "/mnt/Training/test_video29.mov"
-video30 = "/mnt/Training/test_video30.mov"
-video31 = "/mnt/Training/test_video31.mov"
-video32 = "/mnt/Training/test_video32.mov"
-video33 = "/mnt/Training/test_video33.mov"
-video34 = "/mnt/Training/test_video34.mov"
-video35 = "/mnt/Training/test_video35.mov"
-video36 = "/mnt/Training/test_video36.mov"
+# Load paths from configuration file
+config = configparser.ConfigParser()
+config.read('/mnt/Training/config.ini')
+fallbackPath = config.get('Videos', 'fallbackPath')
+
+welcomeScreen = config.get('Images', 'welcomeScreen', fallback=fallbackPath)
+buttonPressed = config.get('Images', 'buttonPressed', fallback=fallbackPath)
+video1 = config.get('Videos', 'video1', fallback=fallbackPath)
+video2 = config.get('Videos', 'video2', fallback=fallbackPath)
+video3 = config.get('Videos', 'video3', fallback=fallbackPath)
+video4 = config.get('Videos', 'video4', fallback=fallbackPath)
+video5 = config.get('Videos', 'video5', fallback=fallbackPath)
+video6 = config.get('Videos', 'video6', fallback=fallbackPath)
+video7 = config.get('Videos', 'video7', fallback=fallbackPath)
+video8 = config.get('Videos', 'video8', fallback=fallbackPath)
+video9 = config.get('Videos', 'video9', fallback=fallbackPath)
+video10 = config.get('Videos', 'video10', fallback=fallbackPath)
+video11 = config.get('Videos', 'video11', fallback=fallbackPath)
+video12 = config.get('Videos', 'video12', fallback=fallbackPath)
+video13 = config.get('Videos', 'video13', fallback=fallbackPath)
+video14 = config.get('Videos', 'video14', fallback=fallbackPath)
+video15 = config.get('Videos', 'video15', fallback=fallbackPath)
+video16 = config.get('Videos', 'video16', fallback=fallbackPath)
+video17 = config.get('Videos', 'video17', fallback=fallbackPath)
+video18 = config.get('Videos', 'video18', fallback=fallbackPath)
+video19 = config.get('Videos', 'video19', fallback=fallbackPath)
+video20 = config.get('Videos', 'video20', fallback=fallbackPath)
+video21 = config.get('Videos', 'video21', fallback=fallbackPath)
+video22 = config.get('Videos', 'video22', fallback=fallbackPath)
+video23 = config.get('Videos', 'video23', fallback=fallbackPath)
+video24 = config.get('Videos', 'video24', fallback=fallbackPath)
+video25 = config.get('Videos', 'video25', fallback=fallbackPath)
+video26 = config.get('Videos', 'video26', fallback=fallbackPath)
+video27 = config.get('Videos', 'video27', fallback=fallbackPath)
+video28 = config.get('Videos', 'video28', fallback=fallbackPath)
+video29 = config.get('Videos', 'video29', fallback=fallbackPath)
+video30 = config.get('Videos', 'video30', fallback=fallbackPath)
+video31 = config.get('Videos', 'video31', fallback=fallbackPath)
+video32 = config.get('Videos', 'video32', fallback=fallbackPath)
+video33 = config.get('Videos', 'video33', fallback=fallbackPath)
+video34 = config.get('Videos', 'video34', fallback=fallbackPath)
+video35 = config.get('Videos', 'video35', fallback=fallbackPath)
+video36 = config.get('Videos', 'video36', fallback=fallbackPath)
 
 #Plays the video located at the specified path in fullscreen mode
 #
@@ -100,9 +100,31 @@ def play_video(video_path):
     update()
     #Wait for all doors to close
     if sensorValue != 0:
-        close_doors(closeDoors)     
+        display_image(buttonPressed)     
   
-#Displays the welcome screen image in fullscreen mode until a sensor value changes 
+  
+ #Displays the passed image in fullscreen mode until a sensor value changes 
+#
+#Args:
+#    imagePath (str): The path to the welcome screen image file.     
+def display_image(imagePath):
+    global sensorValue
+    img = cv2.imread(imagePath)
+    if img is None:
+        print("Error: Cannot open image file.")
+        return
+    cv2.namedWindow("Image_Display", cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty("Image_Display", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    #Wait for sensorValue to change
+    while sensorValue == 0:
+        cv2.imshow("Image_Display", img)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
+        update()
+    cv2.destroyAllWindows()
+    
+     
+""" #Displays the welcome screen image in fullscreen mode until a sensor value changes 
 #
 #Args:
 #    imagePath (str): The path to the welcome screen image file.     
@@ -126,7 +148,7 @@ def welcome_screen(imagePath):
 #
 #Args:  
 #    imagePath (str): The path to the close doors image file.
-def close_doors(imagePath):
+def button_pressed(imagePath):
     global sensorValue
     img = cv2.imread(imagePath)
     if img is None:
@@ -140,7 +162,7 @@ def close_doors(imagePath):
         if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
         update()
-    cv2.destroyAllWindows()
+    cv2.destroyAllWindows() """
    
 #Converts each layer into its binary form, concatenates them, and converts the string back into an integer 
 #
@@ -169,7 +191,7 @@ def main(args):
     while True:
         match sensorValue:
             case 0:
-                welcome_screen(welcomeScreen)
+                display_image(welcomeScreen)
             case 1:
                 play_video(video1)
             case 2:
@@ -243,11 +265,16 @@ def main(args):
             case 34359738368:
                 play_video(video36)
             case _:
-                close_doors(closeDoors)
+                display_image(buttonPressed)
         update()
         time.sleep(0.10)
 
 
 if __name__ == '__main__':
     import sys
+    import configparser
+    import os
+    import cv2
+    import time
+    import lib16inpind as inp16
     sys.exit(main(sys.argv))
