@@ -28,6 +28,12 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+import configparser
+import os
+import cv2
+import time
+import lib16inpind as inp16
+
 #Global Variables - Adjust video paths here
 sensorValue = 0 #Initial sensor value - Do not change
 # Load paths from configuration file
@@ -272,9 +278,4 @@ def main(args):
 
 if __name__ == '__main__':
     import sys
-    import configparser
-    import os
-    import cv2
-    import time
-    import lib16inpind as inp16
     sys.exit(main(sys.argv))
