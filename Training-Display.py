@@ -136,48 +136,7 @@ def display_image(imagePath):
                 break
         update()
     cv2.destroyAllWindows()
-    
-     
-""" #Displays the welcome screen image in fullscreen mode until a sensor value changes 
-#
-#Args:
-#    imagePath (str): The path to the welcome screen image file.     
-def welcome_screen(imagePath):
-    global sensorValue
-    img = cv2.imread(imagePath)
-    if img is None:
-        print("Error: Cannot open image file.")
-        return
-    cv2.namedWindow("Welcome_Screen", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("Welcome_Screen", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    #Wait for sensorValue to change
-    while sensorValue == 0:
-        cv2.imshow("Welcome_Screen", img)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        update()
-    cv2.destroyAllWindows()
 
-#Displays the close doors image in fullscreen mode until all doors are closed
-#
-#Args:  
-#    imagePath (str): The path to the close doors image file.
-def button_pressed(imagePath):
-    global sensorValue
-    img = cv2.imread(imagePath)
-    if img is None:
-        print("Error: Cannot open image file.")
-        return
-    cv2.namedWindow("Welcome_Screen", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("Welcome_Screen", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    #Wait for sensorValue to return to 0
-    while sensorValue != 0:
-        cv2.imshow("Welcome_Screen", img)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        update()
-    cv2.destroyAllWindows() """
-   
 #Converts each layer into its binary form, concatenates them, and converts the string back into an integer 
 #
 #Args:
