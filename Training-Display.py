@@ -237,6 +237,10 @@ def main(args):
                 play_video(video35)
             case 34359738368:
                 play_video(video36)
+            case 68719476736:
+                display_image(buttonPressed)
+            case 137438953472:
+                os.system("sudo reboot")
             case _:
                 display_image(buttonPressed)
         update()
