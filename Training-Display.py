@@ -38,7 +38,7 @@ import lib16inpind as inp16
 sensorValue = 0 #Initial sensor value - Do not change
 # Load paths from configuration file
 config = configparser.ConfigParser()
-config.read('/mnt/Training/config.ini')
+config.read('/mnt/Training/RPi-Training-Display/config.ini')
 fallbackVideo = config.get('Videos', 'fallbackVideo')
 fallbackImage = config.get('Images', 'fallbackImage')
 
