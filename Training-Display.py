@@ -32,6 +32,7 @@ import configparser
 import os
 import cv2
 import time
+import tkinter as tk
 import lib16inpind as inp16
 
 #Global Variables - Adjust video paths here
@@ -80,6 +81,7 @@ video33 = config.get('Videos', 'video33', fallback=fallbackVideo)
 video34 = config.get('Videos', 'video34', fallback=fallbackVideo)
 video35 = config.get('Videos', 'video35', fallback=fallbackVideo)
 video36 = config.get('Videos', 'video36', fallback=fallbackVideo)
+qcorner = config.get('Videos', 'qcorner', fallback=fallbackVideo)
 
 #Plays the video located at the specified path in fullscreen mode
 #
@@ -116,25 +118,43 @@ def play_video(video_path):
 #    imagePath (str): The path to the welcome screen image file.     
 def display_image(imagePath):
     global sensorValue
-    imageAvailable = True
     img = cv2.imread(imagePath)
     if img is None:
         print("Error: Cannot open image file.")
         return
-    cv2.namedWindow("Image_Display", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("Image_Display", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    #Wait for sensorValue to change
-    while sensorValue == 0:
-        imageAvailable = False
-        cv2.imshow("Image_Display", img)
+
+    # Try to get actual screen resolution; fallback to image size if not available
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        screen_w = root.winfo_screenwidth()
+        screen_h = root.winfo_screenheight()
+        root.destroy()
+    except Exception:
+        screen_h, screen_w = img.shape[:2]
+
+    # Stretch image to full screen (may change aspect ratio)
+    resized_img = cv2.resize(img, (screen_w, screen_h), interpolation=cv2.INTER_LINEAR)
+
+    winname = "Image_Display"
+    cv2.namedWindow(winname, cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    
+    # Initial draw and sensor update
+    cv2.imshow(winname, resized_img)
+    update()
+
+    # Show image until sensor value changes (detect change by comparing previous value)
+    prev_value = sensorValue
+    while True:
+        cv2.imshow(winname, resized_img)
         if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
+            break
         update()
-    while sensorValue != 0 and imageAvailable:
-        cv2.imshow("Image_Display", img)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        update()
+        if sensorValue != prev_value:
+            break
+        prev_value = sensorValue
+
     cv2.destroyAllWindows()
 
 #Converts each layer into its binary form, concatenates them, and converts the string back into an integer 
@@ -238,7 +258,7 @@ def main(args):
             case 34359738368:
                 play_video(video36)
             case 68719476736:
-                display_image(buttonPressed)
+                play_video(qcorner)
             case 137438953472:
                 os.system("sudo reboot")
             case _:
