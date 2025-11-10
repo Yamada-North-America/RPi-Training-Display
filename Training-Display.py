@@ -184,7 +184,7 @@ def main(args):
     while True:
         match sensorValue:
             case 0:
-                display_image(welcomeScreen)
+                play_video(welcomeScreen)
             case 1:
                 play_video(video1)
             case 2:
