@@ -127,6 +127,7 @@ def play_screensaver(video_path):
         ret, frame = cap.read()
         if ret == True:
             cv2.imshow('Training_Video', frame)
+            update()
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
             elif sensorValue != 0:
@@ -136,7 +137,7 @@ def play_screensaver(video_path):
     cap.release()
     cv2.destroyAllWindows()
     os.system('clear')
-    update()   
+    update()
     
 #Displays the passed image in fullscreen mode until a sensor value changes 
 #
