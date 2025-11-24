@@ -110,7 +110,11 @@ def play_video(video_path):
     #Wait for all doors to close
     if sensorValue != 0:
         display_image(buttonPressed) 
-        
+
+#Plays the video located at the specified path in fullscreen mode and waits for a sensor value change to exit
+#
+#Args:
+#    video_path (str): The path to the video file.        
 def play_screensaver(video_path):
     global sensorValue
     cap = cv2.VideoCapture(video_path)
@@ -119,28 +123,22 @@ def play_screensaver(video_path):
         return
     cv2.namedWindow("Training_Video", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Training_Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    prev_value = sensorValue
     while cap.isOpened():
         ret, frame = cap.read()
         if ret == True:
             cv2.imshow('Training_Video', frame)
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
-            elif sensorValue != prev_value:
+            elif sensorValue != 0:
                 break
-            prev_value = sensorValue
         else:
             break
     cap.release()
     cv2.destroyAllWindows()
     os.system('clear')
-    update()
-    #Wait for all doors to close
-    if sensorValue != 0:
-        display_image(buttonPressed)    
-  
-  
- #Displays the passed image in fullscreen mode until a sensor value changes 
+    update()   
+    
+#Displays the passed image in fullscreen mode until a sensor value changes 
 #
 #Args:
 #    imagePath (str): The path to the welcome screen image file.     
