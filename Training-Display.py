@@ -121,14 +121,36 @@ def play_screensaver(video_path):
     if not cap.isOpened():
         print("Error: Cannot open video file.")
         return
-    cv2.namedWindow("Training_Video", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("Training_Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+    win = "Screensaver"
+    # Create a resizable window and then set it to fullscreen
+    cv2.namedWindow(win, cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+    # Determine screen size (fallback to video frame size)
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        screen_w = root.winfo_screenwidth()
+        screen_h = root.winfo_screenheight()
+        root.destroy()
+    except Exception:
+        ret, frame = cap.read()
+        if not ret:
+            cap.release()
+            cv2.destroyAllWindows()
+            return
+        screen_h, screen_w = frame.shape[:2]
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     # Loop the video until sensorValue changes from 0
     while sensorValue == 0:
         ret, frame = cap.read()
         if ret:
-            cv2.imshow('Training_Video', frame)
+            # Resize frame to fill the screen (may change aspect ratio)
+            if frame.shape[1] != screen_w or frame.shape[0] != screen_h:
+                frame = cv2.resize(frame, (screen_w, screen_h), interpolation=cv2.INTER_LINEAR)
+            cv2.imshow(win, frame)
             update()
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
@@ -136,6 +158,7 @@ def play_screensaver(video_path):
             # Rewind to the beginning and continue looping
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             time.sleep(0.01)
+
     cap.release()
     cv2.destroyAllWindows()
     os.system('clear')
