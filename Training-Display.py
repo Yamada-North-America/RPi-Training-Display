@@ -337,8 +337,6 @@ def main(args):
                 os.system("sudo reboot")
             case _:
                 display_image(buttonPressed)
-        update()
-        time.sleep(0.10)
 
 
 if __name__ == '__main__':
