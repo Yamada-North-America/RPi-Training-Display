@@ -123,21 +123,22 @@ def play_screensaver(video_path):
         return
     cv2.namedWindow("Training_Video", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Training_Video", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    while cap.isOpened():
+
+    # Loop the video until sensorValue changes from 0
+    while sensorValue == 0:
         ret, frame = cap.read()
-        if ret == True:
+        if ret:
             cv2.imshow('Training_Video', frame)
             update()
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
-            elif sensorValue != 0:
-                break
         else:
-            break
+            # Rewind to the beginning and continue looping
+            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            time.sleep(0.01)
     cap.release()
     cv2.destroyAllWindows()
     os.system('clear')
-    update()
     
 #Displays the passed image in fullscreen mode until a sensor value changes 
 #
