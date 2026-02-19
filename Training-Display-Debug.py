@@ -157,6 +157,7 @@ def combine_layers(layers):
 #Updates sensorValue global variables by reading all 3 layers
 def update():
     global sensorValue
+    global debugTime
     #sensorValue = combine_layers([inp16.readAll(0), inp16.readAll(1), inp16.readAll(2)])
     sensorValue = 0
     if debugTime > 100:
