@@ -157,6 +157,11 @@ def update():
     #sensorValue = combine_layers([inp16.readAll(0), inp16.readAll(1), inp16.readAll(2)])
     sensorValue = 0#random.randint(0, 10)
     #print("Dec: ", f'{sensorValue:016d}', "Bin: ", f'{sensorValue:048b}', end='\r')
+    try:
+        pass
+    except KeyboardInterrupt:
+        exit()
+    
 
 #The main function that continuously checks the sensor value and displays the corresponding video or image
 #
