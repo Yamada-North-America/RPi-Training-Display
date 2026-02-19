@@ -249,10 +249,4 @@ def main(args):
     
 if __name__ == '__main__':
     import sys
-    import configparser
-    import os
-    import mpv
-    import time
-    import tkinter as tk
-    import lib16inpind as inp16
     sys.exit(main(sys.argv))
