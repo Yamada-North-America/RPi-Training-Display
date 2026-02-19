@@ -29,6 +29,7 @@
 #  MA 02110-1301, USA.
 
 import configparser
+import RPi.GPIO as GPIO
 import os
 import mpv
 import time
@@ -39,6 +40,28 @@ import lib16inpind as inp16
 #Global Variables - Adjust video paths here
 sensorValue = 0 #Initial sensor value - Do not change
 debugTime = 0
+
+# Pin configuration
+BUTTON_PIN = 26  # GPIO 26 (Pin 37)
+HOLD_TIME = 3  # Time in seconds to hold the button to shut down
+
+# GPIO setup
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+def handle_button(channel):
+    global sensorValue
+    start_time = time.time()
+    while GPIO.input(BUTTON_PIN) == GPIO.LOW:
+        if time.time() - start_time >= HOLD_TIME:
+            os.system("sudo shutdown -h now")
+            return
+        time.sleep(0.1)  # Polling interval   
+    sensorValue = 3 #Value to exit videos and terminate script
+
+# Detect button press
+GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, callback=handle_button, bouncetime=200)
+
 # Load paths from configuration file
 config = configparser.ConfigParser()
 config.read('/mnt/Training/RPi-Training-Display/config.ini')
@@ -165,7 +188,7 @@ def update():
     if debugTime > 100:
         sensorValue = 1
     else:
-        debugTime += 1
+        debugTime += 1 
     #print("Dec: ", f'{sensorValue:016d}', "Bin: ", f'{sensorValue:048b}', end='\r')        
 
 #The main function that continuously checks the sensor value and displays the corresponding video or image
@@ -182,6 +205,10 @@ def main(args):
                 play_video(video1)
             case 2:
                 play_video(video2)
+            case 3:
+                os.system('clear')
+                GPIO.cleanup()
+                exit()
             case 4:
                 play_video(video3)
             case 8:
