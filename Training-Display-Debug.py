@@ -131,7 +131,7 @@ def play_screensaver(video_path):
 #    imagePath (str): The path to the welcome screen image file.     
 def display_image(imagePath):
     global sensorValue
-    player = mpv.MPV(fullscreen=True, ytdl=False)
+    player = mpv.MPV(fullscreen=True, ytdl=False, loop=True)
     player.play(imagePath)
     
     prev_value = sensorValue
