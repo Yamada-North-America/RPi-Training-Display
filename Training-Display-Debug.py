@@ -97,7 +97,8 @@ def play_video(video_path):
         update()
         time.sleep(0.1)
     
-    player.quit()
+    player.stop()
+    player.terminate()
     os.system('clear')
     
     #Wait for all doors to close
@@ -117,7 +118,8 @@ def play_screensaver(video_path):
     while sensorValue == 0:
         update()
         time.sleep(0.1)
-    player.quit()
+    player.stop()
+    player.terminate()
     os.system('clear')
     
 #Displays the passed image in fullscreen mode until a sensor value changes 
@@ -136,7 +138,8 @@ def display_image(imagePath):
             break
         time.sleep(0.1)
     
-    player.quit()
+    player.stop()
+    player.terminate()
     
 #Converts each layer into its binary form, concatenates them, and converts the string back into an integer 
 #
