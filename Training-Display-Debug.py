@@ -126,7 +126,7 @@ def play_video(video_path):
     os.system('clear')
     
     #Wait for all doors to close
-    if sensorValue != 0 or sensorValue != 3:
+    if sensorValue != 0 and sensorValue != 3:
         display_image(buttonPressed)
 
 #Plays the video located at the specified path in fullscreen mode and waits for a sensor value change to exit
