@@ -7,9 +7,7 @@
 # It uses OpenCV to handle video and image display and a custom library `lib16inpind` to read sensor values.
 # Global Variables:
 #     sensorValue (int): The current value read from the sensors.
-#     welcomeScreen (str): Path to the welcome screen image.
-#     closeDoors (str): Path to the close doors image.
-#     video1 to video36 (str): Paths to the training videos.
+#     debugTime (int): A counter used for debugging purposes to simulate sensor value changes.
 #  
 #  Copyright 2025  <Christian Stewart - Yamada North America>
 #  
@@ -119,7 +117,7 @@ def play_video(video_path):
     
     time.sleep(5) #Wait for the video to start before checking idle
     
-    while player.core_idle == False:
+    while player.core_idle == False and sensorValue != 3:
         update()
         time.sleep(0.1)
     
@@ -128,7 +126,7 @@ def play_video(video_path):
     os.system('clear')
     
     #Wait for all doors to close
-    if sensorValue != 0:
+    if sensorValue != 0 or sensorValue != 3:
         display_image(buttonPressed)
 
 #Plays the video located at the specified path in fullscreen mode and waits for a sensor value change to exit
