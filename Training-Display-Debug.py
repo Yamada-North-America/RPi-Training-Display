@@ -181,6 +181,9 @@ def combine_layers(layers):
 def update():
     global sensorValue
     global debugTime
+    # Don't update if sensorValue is 3 (exit value) to prevent changes during video playback
+    if sensorValue == 3:
+        return
     #sensorValue = combine_layers([inp16.readAll(0), inp16.readAll(1), inp16.readAll(2)])
     sensorValue = 0
     if debugTime > 100:
