@@ -7,7 +7,7 @@
 # It uses OpenCV to handle video and image display and a custom library `lib16inpind` to read sensor values.
 # Global Variables:
 #     sensorValue (int): The current value read from the sensors.
-#     welcomeScreen (str): Path to the welcome screen image.
+#     welcomeScreen (str): Path to the welcome screen video.
 #     closeDoors (str): Path to the close doors image.
 #     video1 to video36 (str): Paths to the training videos.
 #  
@@ -29,14 +29,38 @@
 #  MA 02110-1301, USA.
 
 import configparser
+import RPi.GPIO as GPIO
 import os
-import cv2
+import mpv
 import time
+import random
 import tkinter as tk
 import lib16inpind as inp16
 
-#Global Variables - Adjust video paths here
+# Global Variables - Adjust video paths here
 sensorValue = 0 #Initial sensor value - Do not change
+
+# Pin configuration
+BUTTON_PIN = 26  # GPIO 26 (Pin 37)
+HOLD_TIME = 3  # Time in seconds to hold the button to shut down
+
+# GPIO setup
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+def handle_button(channel):
+    global sensorValue
+    start_time = time.time()
+    while GPIO.input(BUTTON_PIN) == GPIO.LOW:
+        if time.time() - start_time >= HOLD_TIME:
+            os.system("sudo shutdown -h now")
+            return
+        time.sleep(0.1)  # Polling interval   
+    sensorValue = 3 # Value to exit videos and terminate script
+
+# Detect button press
+GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, callback=handle_button, bouncetime=200)
+
 # Load paths from configuration file
 config = configparser.ConfigParser()
 config.read('/mnt/Training/RPi-Training-Display/config.ini')
@@ -83,159 +107,69 @@ video35 = config.get('Videos', 'video35', fallback=fallbackVideo)
 video36 = config.get('Videos', 'video36', fallback=fallbackVideo)
 qcorner = config.get('Videos', 'qcorner', fallback=fallbackVideo)
 
-#Plays the video located at the specified path in fullscreen mode
+# Plays the video located at the specified path in fullscreen mode
 #
-#Args:
+# Args:
 #    video_path (str): The path to the video file. 
 def play_video(video_path):
     global sensorValue
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        print("Error: Cannot open video file.")
-        return
+    player = mpv.MPV(fullscreen=True, ytdl=False)
+    player.play(video_path)
     
-    win = "Training_Video"
-    # Create a resizable window and then set it to fullscreen
-    cv2.namedWindow(win, cv2.WINDOW_NORMAL)
-    cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-
-    # Determine screen size (fallback to video frame size)
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        screen_w = root.winfo_screenwidth()
-        screen_h = root.winfo_screenheight()
-        root.destroy()
-    except Exception:
-        ret, frame = cap.read()
-        if not ret:
-            cap.release()
-            cv2.destroyAllWindows()
-            return
-        screen_h, screen_w = frame.shape[:2]
-        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if ret:
-            # Resize frame to fill the screen (may change aspect ratio)
-            # if frame.shape[1] != screen_w or frame.shape[0] != screen_h:
-            #     frame = cv2.resize(frame, (screen_w, screen_h), interpolation=cv2.INTER_LINEAR)
-            cv2.imshow(win, frame)
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        else:
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+    time.sleep(5) # Wait for the video to start before checking idle
+    
+    while player.core_idle == False and sensorValue != 3:
+        update()
+        time.sleep(0.1)
+    
+    player.stop()
+    player.terminate()
     os.system('clear')
-    update()
-    #Wait for all doors to close
-    if sensorValue != 0:
-        display_image(buttonPressed) 
+    
+    # Wait for all doors to close
+    if sensorValue != 0 and sensorValue != 3:
+        display_image(buttonPressed)
 
-#Plays the video located at the specified path in fullscreen mode and waits for a sensor value change to exit
+# Plays the video located at the specified path in fullscreen mode and waits for a sensor value change to exit
 #
-#Args:
+# Args:
 #    video_path (str): The path to the video file.        
 def play_screensaver(video_path):
     global sensorValue
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        print("Error: Cannot open video file.")
-        return
-
-    win = "Screensaver"
-    # Create a resizable window and then set it to fullscreen
-    cv2.namedWindow(win, cv2.WINDOW_NORMAL)
-    cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-
-    # Determine screen size (fallback to video frame size)
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        screen_w = root.winfo_screenwidth()
-        screen_h = root.winfo_screenheight()
-        root.destroy()
-    except Exception:
-        ret, frame = cap.read()
-        if not ret:
-            cap.release()
-            cv2.destroyAllWindows()
-            return
-        screen_h, screen_w = frame.shape[:2]
-        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
-    # Loop the video until sensorValue changes from 0
+    player = mpv.MPV(fullscreen=True, ytdl=False, loop=True)
+    player.play(video_path)
+    
     while sensorValue == 0:
-        ret, frame = cap.read()
-        if ret:
-            # Resize frame to fill the screen (may change aspect ratio)
-            # if frame.shape[1] != screen_w or frame.shape[0] != screen_h:
-            #     frame = cv2.resize(frame, (screen_w, screen_h), interpolation=cv2.INTER_LINEAR)
-            cv2.imshow(win, frame)
-            update()
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        else:
-            # Rewind to the beginning and continue looping
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            time.sleep(0.01)
-
-    cap.release()
-    cv2.destroyAllWindows()
+        update()
+        time.sleep(0.1)
+    player.stop()
+    player.terminate()
     os.system('clear')
     
-#Displays the passed image in fullscreen mode until a sensor value changes 
+# Displays the passed image in fullscreen mode until a sensor value changes 
 #
-#Args:
+# Args:
 #    imagePath (str): The path to the welcome screen image file.     
 def display_image(imagePath):
     global sensorValue
-    img = cv2.imread(imagePath)
-    if img is None:
-        print("Error: Cannot open image file.")
-        return
-
-    # Try to get actual screen resolution; fallback to image size if not available
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        screen_w = root.winfo_screenwidth()
-        screen_h = root.winfo_screenheight()
-        root.destroy()
-    except Exception:
-        screen_h, screen_w = img.shape[:2]
-
-    # Stretch image to full screen (may change aspect ratio)
-    resized_img = cv2.resize(img, (screen_w, screen_h), interpolation=cv2.INTER_LINEAR)
-
-    winname = "Image_Display"
-    cv2.namedWindow(winname, cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    player = mpv.MPV(fullscreen=True, ytdl=False, loop=True)
+    player.play(imagePath)
     
-    # Initial draw and sensor update
-    cv2.imshow(winname, resized_img)
-    update()
-
-    # Show image until sensor value changes (detect change by comparing previous value)
     prev_value = sensorValue
     while True:
-        cv2.imshow(winname, resized_img)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
         update()
-        if sensorValue != prev_value:
+        if sensorValue != prev_value or sensorValue == 3:
             break
-        prev_value = sensorValue
-
-    cv2.destroyAllWindows()
-
-#Converts each layer into its binary form, concatenates them, and converts the string back into an integer 
+        time.sleep(0.1)
+    
+    player.stop()
+    player.terminate()
+    
+# Converts each layer into its binary form, concatenates them, and converts the string back into an integer 
 #
-#Args:
+# Args:
 #    layers (list): A list of integers representing the sensor layers.
-#Returns:
+# Returns:
 #    int: The combined decimal result of the binary layers.  
 def combine_layers(layers):
     binary_strings = [format(layer, '016b') for layer in layers]
@@ -243,15 +177,17 @@ def combine_layers(layers):
     decimal_result = int(concat_binary, 2)
     return decimal_result
  
-#Updates sensorValue global variables by reading all 3 layers
+# Updates sensorValue global variables by reading all 3 layers
 def update():
     global sensorValue
-    sensorValue = combine_layers([inp16.readAll(0), inp16.readAll(1), inp16.readAll(2)])
-    #print("Dec: ", f'{sensorValue:016d}', "Bin: ", f'{sensorValue:048b}', end='\r')
+    # Don't update if sensorValue is 3 (exit value) to prevent changes during video playback
+    if sensorValue == 3:
+        return
+    sensorValue = combine_layers([inp16.readAll(0), inp16.readAll(1), inp16.readAll(2)])       
 
-#The main function that continuously checks the sensor value and displays the corresponding video or image
+# The main function that continuously checks the sensor value and displays the corresponding video or image
 #
-#Args:
+# Args:
 #    args (list): Command line arguments.
 def main(args):
     global sensorValue
@@ -263,6 +199,10 @@ def main(args):
                 play_video(video1)
             case 2:
                 play_video(video2)
+            case 3:
+                os.system('clear')
+                GPIO.cleanup()
+                exit()
             case 4:
                 play_video(video3)
             case 8:
@@ -337,8 +277,7 @@ def main(args):
                 os.system("sudo reboot")
             case _:
                 display_image(buttonPressed)
-
-
+    
 if __name__ == '__main__':
     import sys
     sys.exit(main(sys.argv))

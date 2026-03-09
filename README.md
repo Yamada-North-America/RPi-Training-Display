@@ -63,9 +63,13 @@ This project is designed to display training videos on a Raspberry Pi based on s
     ```
 5. Install the required libraries
     ```bash
-    sudo pip3 install opencv-contrib-python SM16inpind --break-system-packages
+    sudo pip3 install opencv-contrib-python SM16inpind mpv --break-system-packages
     ```
-6. Create autostart file
+7. Install the required packages
+    ```bash
+    sudo apt install mpv
+    ```
+8. Create autostart file
     ```bash
     sudo nano ~/.config/labwc/autostart
     ```
@@ -76,7 +80,7 @@ This project is designed to display training videos on a Raspberry Pi based on s
     # Starts the script to monitor the button on the Raspberry Pi HATs
     python3 /mnt/Training/RPi-Training-Display/Shutdown-Button.pi >/dev/null 2>&1 &
     ```
-8. Restart Raspberry Pi
+9. Restart Raspberry Pi
     ```bash
     reboot
     ```
