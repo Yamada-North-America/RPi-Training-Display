@@ -117,7 +117,7 @@ def play_video(video_path):
     player.play(video_path)
     
     # Wait for video to start playing before checking for sensor changes to prevent premature exit
-    while not player.core_idle:
+    while player.core_idle:
         time.sleep(0.1)
     
     while player.core_idle == False and sensorValue != 3:
