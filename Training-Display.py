@@ -116,7 +116,9 @@ def play_video(video_path):
     player = mpv.MPV(fullscreen=True, ytdl=False)
     player.play(video_path)
     
-    time.sleep(5) # Wait for the video to start before checking idle
+    # Wait for video to start playing before checking for sensor changes to prevent premature exit
+    while not player.core_idle:
+        time.sleep(0.1)
     
     while player.core_idle == False and sensorValue != 3:
         update()
