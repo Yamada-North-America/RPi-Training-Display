@@ -113,6 +113,13 @@ qcorner = config.get('Videos', 'qcorner', fallback=fallbackVideo)
 #    video_path (str): The path to the video file. 
 def play_video(video_path):
     global sensorValue
+    
+    # Check if video is null or exists before attempting to play
+    if not video_path or not os.path.isfile(video_path):
+        time.sleep(1) 
+        sensorValue = 0 # Reset to welcome screen if video is missing
+        return
+    
     player = mpv.MPV(fullscreen=True, ytdl=False)
     player.play(video_path)
     
@@ -120,7 +127,7 @@ def play_video(video_path):
     while player.core_idle:
         time.sleep(0.1)
     
-    while player.core_idle == False and sensorValue != 3:
+    while not player.core_idle and sensorValue != 3:
         update()
         time.sleep(0.1)
     
