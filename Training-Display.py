@@ -193,28 +193,17 @@ def update():
     if sensorValue == 3:
         return
     sensorValue = combine_layers([inp16.readAll(0), inp16.readAll(1), inp16.readAll(2)])      
-    
-def setup(local_welcome):
-    # copy welcomeScreen to local storage if it is newer
-    if os.path.isfile(welcomeScreen):
-        if not os.path.isfile(local_welcome) or os.path.getmtime(welcomeScreen) > os.path.getmtime(local_welcome):
-            os.system(f'cp {welcomeScreen} {local_welcome}')
 
 # The main function that continuously checks the sensor value and displays the corresponding video or image
 #
 # Args:
 #    args (list): Command line arguments.
 def main(args):
-    # Setup
     global sensorValue
-    localWelcomeScreen = '/home/pi/Videos/welcomeScreen.mp4'
-    setup(localWelcomeScreen)
-    
-    # Run loop
     while True:
         match sensorValue:
             case 0:
-                play_screensaver(localWelcomeScreen)
+                play_screensaver(welcomeScreen)
             case 1:
                 play_video(video1)
             case 2:
