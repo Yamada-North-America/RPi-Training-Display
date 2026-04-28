@@ -76,9 +76,9 @@ This project is designed to display training videos on a Raspberry Pi based on s
     Copy the following to the new file
     ```bash
     # Starts the Training Display python script
-    python3 /mnt/Training/RPi-Training-Display/Training-Display.pi >/dev/null 2>&1 &
+    python3 /mnt/Training/RPi-Training-Display/Training-Display.py >/dev/null 2>&1 &
     # Starts the script to monitor the button on the Raspberry Pi HATs
-    python3 /mnt/Training/RPi-Training-Display/Shutdown-Button.pi >/dev/null 2>&1 &
+    python3 /mnt/Training/RPi-Training-Display/Script-Recovery.py >/dev/null 2>&1 &
     ```
 9. Restart Raspberry Pi
     ```bash
